@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>NagaT-X | Building Patrol System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-root">
+    <!-- ヘッダー -->
+    <header class="app-header glass">
+      <div class="header-left">
+        <div class="app-logo">
+          <div class="logo-mark">TX</div>
+          <div class="logo-text">
+            <h1>NagaT-X</h1>
+            <p>Building Patrol System</p>
+          </div>
+        </div>
+        <div class="header-meta">
+          <div class="meta-row">
+            <span class="meta-label">担当者</span>
+            <input id="userNameInput" type="text" class="input-text" placeholder="担当者名" />
+            <button id="saveUserButton" class="btn ghost" type="button">
+              <span class="btn-icon">💾</span>
+              保存
+            </button>
+          </div>
+          <div class="meta-row meta-times">
+            <span class="meta-label">開始</span>
+            <span id="startTimeDisplay" class="meta-value">未開始</span>
+            <span class="meta-label">終了</span>
+            <span id="endTimeDisplay" class="meta-value">未終了</span>
+            <span class="meta-label">所要時間</span>
+            <span id="durationDisplay" class="meta-value">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="themeToggleButton" class="btn icon-only" type="button" title="ダークモード切替" aria-label="テーマ切替">
+          <span id="themeToggleIcon">🌙</span>
+        </button>
+        <button id="installButton" class="btn ghost" type="button" style="display:none;">
+          <span class="btn-icon">⬇️</span>
+          インストール
+        </button>
+      </div>
+    </header>
+
+    <div class="app-layout">
+      <!-- 左：ビル縦断マップ -->
+      <aside class="sidebar glass">
+        <div class="sidebar-header">
+          <span class="sidebar-title">ビル縦断マップ</span>
+        </div>
+        <ul id="floorList" class="floor-list">
+          <li data-floor="屋上" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">屋上</span>
+          </li>
+          <li data-floor="36F" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">36F</span>
+          </li>
+          <li data-floor="27F" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">27F</span>
+          </li>
+          <li data-floor="3F" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">3F</span>
+          </li>
+          <li data-floor="2F" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">2F</span>
+          </li>
+          <li data-floor="1F" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">1F</span>
+          </li>
+          <li data-floor="B2" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">B2</span>
+          </li>
+          <li data-floor="防災センター" class="floor-item">
+            <span class="floor-dot"></span>
+            <span class="floor-label">防災センター</span>
+          </li>
+        </ul>
+        <div class="map-legend">
+          <div><span class="legend-dot legend-current"></span>現在位置</div>
+          <div><span class="legend-dot legend-complete"></span>完了</div>
+          <div><span class="legend-dot legend-pending"></span>未到達</div>
+        </div>
+      </aside>
+
+      <!-- 右：メイン -->
+      <main class="main">
+        <!-- 進捗 -->
+        <section class="card glass card-animate">
+          <div class="progress-header">
+            <div class="progress-title">
+              <span class="progress-label">日常巡回</span>
+              <span id="routeNameLabel" class="progress-route">-</span>
+            </div>
+            <div class="progress-count">
+              <span id="progressText">0 / 0</span>
+            </div>
+          </div>
+          <div class="progress-bar" aria-label="巡回進捗">
+            <div id="progressBarInner" class="progress-bar-inner"></div>
+          </div>
+        </section>
+
+        <!-- 操作ボタン -->
+        <section class="card glass card-animate controls-card">
+          <div class="controls">
+            <button id="startPatrolButton" class="btn primary" type="button">
+              <span class="btn-icon">▶️</span>
+              巡回開始
+            </button>
+            <button id="finishPatrolButton" class="btn primary" type="button" disabled>
+              <span class="btn-icon">✅</span>
+              巡回終了
+            </button>
+            <button id="resetButton" class="btn ghost" type="button">
+              <span class="btn-icon">♻️</span>
+              リセット
+            </button>
+            <button id="exportCsvButton" class="btn ghost" type="button">
+              <span class="btn-icon">📄</span>
+              CSV出力
+            </button>
+            <button id="exportJsonButton" class="btn ghost" type="button">
+              <span class="btn-icon">🧩</span>
+              JSONバックアップ
+            </button>
+          </div>
+        </section>
+
+        <!-- 現在ポイント -->
+        <section id="contentSection" class="card glass card-animate">
+          <p class="placeholder-text">
+            担当者名を入力し、「巡回開始」を押して日常巡回を開始してください。
+          </p>
+        </section>
+
+        <!-- サマリー -->
+        <section class="card glass card-animate">
+          <h2 class="section-title">巡回サマリー</h2>
+          <div id="summaryContent" class="summary-content">
+            <p class="placeholder-text">まだ巡回が完了していません。</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
